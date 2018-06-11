@@ -36,8 +36,11 @@ sealed class REGEXS(private val regex: String) {
     object ATTR_ID: REGEXS("^.(\\w+)") {
         override fun consume(str: String, group: String): String = str.replaceFirst(".$group","")
     }
-    object ATTR_VALUE: REGEXS("^(?:\"?|-?)(\\w+)\"?") {
-        override fun consume(str: String, group: String): String = str.replaceFirst(group,"")
+    object ATTR_VALUE: REGEXS("^(?:\"?|-?)((?!\\.)(?:\\w|\\.|\\%|\\-)+)\"?") {
+        override fun consume(str: String, group: String): String = str
+                .replaceFirst("\"$group\"","")
+                .replaceFirst("-$group","")
+                .replaceFirst(group,"")
     }
 
 }
@@ -61,7 +64,7 @@ object DarkestParser {
         return mapOf(key to values) + parseAttrs(lastRem)
     }
 
-    private fun parseAttrValues(str: String): Pair<Values, String> {
+    fun parseAttrValues(str: String): Pair<Values, String> {
         val (value, rem) = REGEXS.ATTR_VALUE.tryConsume(str)
         return if(value!=null) {
             val (rest, lastRem) = parseAttrValues(rem)

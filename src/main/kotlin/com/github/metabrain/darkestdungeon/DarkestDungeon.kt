@@ -45,7 +45,7 @@ object DarkestDungeon {
 //                val hero = Hero
                 val exps = f.contents.map { line ->
                     DarkestParser.parse(line)
-                }
+                }.filterNotNull()
                 println("${f.relPath.toString()} -> LOADED hero $hero! \n$exps\n")
             }
         }
