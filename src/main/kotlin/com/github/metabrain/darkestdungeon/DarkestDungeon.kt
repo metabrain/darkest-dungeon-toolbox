@@ -1,5 +1,8 @@
 package com.github.metabrain.darkestdungeon
 
+import com.sun.xml.internal.ws.developer.SerializationFeature
+import org.codehaus.jackson.map.ObjectMapper
+import org.codehaus.jackson.map.SerializationConfig
 import java.nio.file.Path
 
 /**
@@ -43,14 +46,19 @@ object DarkestDungeon {
             override fun load(dd: DarkestDungeon, f: ConfigFile) {
                 println("${f.relPath.toString()} -> Loading hero $hero: \n${f.contents.joinToString("\n")}\n")
 //                val hero = Hero
-                val exps = f.contents.map { line ->
-                    DarkestParser.parse(line)
-                }.filterNotNull()
-                println("${f.relPath.toString()} -> LOADED hero $hero! \n$exps\n")
+                val entities = f.contents.mapNotNull { line ->
+                    DarkestParser.parse(line)?.let { Entities.from(it) }
+                }.filterNot { it is UNKNOWN }
+//                val pretty = mapper.writeValueAsString(mapper.valueToTree(entities))
+                println("${f.relPath.toString()} -> LOADED hero $hero! \n$entities\n")
             }
         }
     }
 
 }
+
+//val mapper = ObjectMapper().also {
+//    it.writerWithDefaultPrettyPrinter()
+//}
 
 data class ConfigFile(val relPath: Path, val contents: List<String>)

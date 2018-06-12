@@ -36,7 +36,7 @@ sealed class REGEXS(private val regex: String) {
     object ATTR_ID: REGEXS("^.(\\w+)") {
         override fun consume(str: String, group: String): String = str.replaceFirst(".$group","")
     }
-    object ATTR_VALUE: REGEXS("^(?:\"?|-?)((?!\\.)(?:\\w|\\.|\\%|\\-)+)\"?") {
+    object ATTR_VALUE: REGEXS("^(?:\"?|-?)((?!\\.)(?:\\w|\\.|\\?|\\~|\\@|\\%|\\-)+)\"?") {
         override fun consume(str: String, group: String): String = str
                 .replaceFirst("\"$group\"","")
                 .replaceFirst("-$group","")
@@ -49,12 +49,18 @@ object DarkestParser {
     fun parse(line: String): Expression? {
         val (key, rem) = REGEXS.EXP_ID.tryConsume(line)
         val exp = key?.let {
-            Expression(key, parseAttrs(rem))
+            try {
+                Expression(key, parseAttrs(rem))
+            } catch (e: Error) {
+//                e.printStackTrace()
+                System.err.println("Error parsing $key -> '$rem'")
+                throw e
+            }
         }
         return exp
     }
 
-    fun parseAttrs(str: String): Attributes {
+    tailrec fun parseAttrs(str: String): Attributes {
         val (key, rem) = REGEXS.ATTR_ID.tryConsume(str)
         if(key==null) {
             return emptyMap()

@@ -16,22 +16,6 @@ data class Hero(val name: String) {
 
 }
 
-class Skill {
-
-}
-
-class Stats {
-
-}
-
-class Resistances {
-
-}
-
-class Item {
-
-}
-
 class Restriction {
 
 }
